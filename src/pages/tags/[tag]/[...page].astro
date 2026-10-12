@@ -1,0 +1,25 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import PostList from '../../../components/PostList.astro';
+import { SITE } from '../../../config';
+import { allTags, getPosts, type Post } from '../../../utils/posts';
+import { slugify } from '../../../utils/slugify';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPosts();
+  return allTags(posts).flatMap((name) => {
+    const tag = slugify(name);
+    return paginate(
+      posts.filter((p) => p.data.tags.some((t) => slugify(t) === tag)),
+      { params: { tag }, props: { name }, pageSize: SITE.postsPerPage },
+    );
+  });
+}) satisfies GetStaticPaths;
+
+const { page, name } = Astro.props as { page: Page<Post>; name: string };
+---
+
+<Base title={name}>
+  <PostList page={page} tag={Astro.params.tag} />
+</Base>

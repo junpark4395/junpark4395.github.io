@@ -1,25 +1,20 @@
 ---
 /**
- * Disqus comments island. Replaces the theme's Giscus island so the
- * threads from the previous site keep working.
+ * Disqus comments. Keeps the threads from the previous site working.
  */
-import { DISQUS, type Locale } from '../../config';
-import { useTranslations } from '../../i18n/utils';
+import { DISQUS } from '../config';
 
 interface Props {
-  locale: Locale;
   /** 스레드 식별자. 한번 정하면 바꾸면 안 된다 — 바꾸면 기존 댓글이 끊긴다. */
   identifier: string;
 }
 
-const { locale, identifier } = Astro.props;
-const t = useTranslations(locale);
+const { identifier } = Astro.props;
 const pageUrl = Astro.url.href;
 const shortname = DISQUS.shortname;
 ---
 
-<section class="border-base-300 mt-12 border-t pt-8" aria-labelledby="comments-heading">
-  <h2 id="comments-heading" class="mb-4 text-xl font-semibold">{t('post.comments')}</h2>
+<section class="comments">
   <div id="disqus_thread"></div>
   <noscript>
     Please enable JavaScript to view the
@@ -28,7 +23,7 @@ const shortname = DISQUS.shortname;
 </section>
 
 <script is:inline define:vars={{ pageUrl, identifier, shortname }}>
-  var disqus_config = function () {
+  window.disqus_config = function () {
     this.page.url = pageUrl;
     this.page.identifier = identifier;
   };

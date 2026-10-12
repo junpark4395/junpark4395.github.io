@@ -1,4 +1,4 @@
-# sakusi4.github.io
+# junpark4395.github.io
 
 ```sh
 bun install

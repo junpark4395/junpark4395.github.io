@@ -1,127 +1,30 @@
-/**
- * Content Collections (Astro v7 loader API).
- *
- * Folder convention (single locale, no locale folders):
- *  - posts/<date-slug>/index.md  + images next to it
- *  - pages/about.md
- *
- * A first folder named after a locale (e.g. posts/fr/...) still sets
- * that post's locale; otherwise SITE.defaultLocale is used.
- */
-
 import { glob } from 'astro/loaders';
-import { defineCollection, type SchemaContext } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { z } from 'zod';
 
-import { SITE } from './config';
-
-const localeEnum = z.enum(SITE.locales as unknown as [string, ...string[]]);
-
-/**
- * Build the post / page frontmatter schema.
- *
- * `heroImage` accepts THREE shapes:
- *   1. An imported asset via `image()` — a path RELATIVE TO THE
- *      MARKDOWN FILE, e.g. `./cover.jpg` next to `index.md`. Astro resolves
- *      it through its image pipeline (WebP, responsive `srcset`,
- *      width/height inferred). This is the recommended option.
- *   2. A public path (e.g. `/images/foo.jpg`) — copied as-is, NOT
- *      optimized.
- *   3. An external URL (https://…) — optimized at build if the host
- *      is allow-listed in `image.remotePatterns` in `astro.config.mjs`.
- */
-const baseFrontmatter = ({ image }: SchemaContext) =>
-  z.object({
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+  schema: z.object({
     title: z.string().min(1).max(140),
-    /** 선택. 비우면 사이트 설명이 meta에 쓰인다. */
-    description: z.string().max(280).default(''),
+    /** 비우면 본문 첫 문단이 목록 요약으로 쓰인다. */
+    description: z.string().max(280).optional(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
-    categories: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
-    heroImage: z.union([image(), z.string()]).optional(),
-    /** Optional alt-text for the hero/featured image. */
-    heroImageAlt: z.string().optional(),
-    /** Per-post override of SITE.showFeaturedImages (cards + hero). */
-    showFeaturedImage: z.boolean().optional(),
-    /** Per-post override of SITE.dynamicPostCardHeight on listing cards. */
-    dynamicPostCardHeight: z.boolean().optional(),
-    canonicalURL: z.url().optional(),
-    comments: z.boolean().optional(),
-    /**
-     * Disqus 스레드 식별자. 기본값은 `posts/<slug>`.
-     * 예전 식별자로 달린 댓글이 있는 글만 여기에 고정한다.
-     */
-    disqusId: z.string().optional(),
-    toc: z.boolean().default(true),
-    /** Pin to top of listings. */
-    pinned: z.boolean().default(false),
-    /**
-     * Opt in to LaTeX math rendering (KaTeX). When `true`, the layout
-     * loads `katex.min.css` only on this page so the stylesheet stays
-     * off posts/pages that don't use math.
-     */
     math: z.boolean().default(false),
-    /**
-     * Opt in to Mermaid diagram rendering. When `true`, the layout
-     * loads the Mermaid client library and initializes diagrams.
-     * Defaults to `false` to keep the heavy Mermaid library off posts/pages
-     * that don't use it.
-     */
-    mermaid: z.boolean().default(false),
-    /** Optional locale override; otherwise inferred from path. */
-    lang: localeEnum.optional(),
-    /**
-     * Maps translated variants together. Posts that share a translationKey
-     * across locales are considered translations of each other and the
-     * language switcher will jump between them on the same article.
-     *
-     * If omitted, falls back to the file slug (relative to the locale folder).
-     */
-    translationKey: z.string().optional(),
-    /**
-     * Unlisted posts/pages are NOT shown in any listing (home, archives,
-     * tags, categories, RSS, sitemap) but remain accessible to anyone who
-     * knows the direct URL.
-     *
-     * Use `unlistedHideFromSeo: true` (the default when `unlisted: true`)
-     * to also emit `<meta name="robots" content="noindex, nofollow">` so
-     * search engines won't index or follow links on the page.
-     */
-    unlisted: z.boolean().default(false),
-    /**
-     * When `true`, adds `<meta name="robots" content="noindex, nofollow">`
-     * to the page. Defaults to `true` whenever `unlisted: true`; can be
-     * set independently to hide a listed post from search engines, or to
-     * keep an unlisted post indexable (e.g. for sharing via a canonical URL
-     * you control).
-     */
-    unlistedHideFromSeo: z.boolean().optional(),
-  });
-
-export type PostFrontmatter = z.infer<ReturnType<typeof baseFrontmatter>>;
-
-const posts = defineCollection({
-  loader: glob({
-    pattern: '**/*.{md,mdx}',
-    base: './src/content/posts',
+    comments: z.boolean().optional(),
+    /** 예전 사이트에서 옮겨 온 글의 Disqus 스레드 식별자. */
+    disqusId: z.string().optional(),
   }),
-  schema: baseFrontmatter,
 });
 
 const pages = defineCollection({
-  loader: glob({
-    pattern: '**/*.{md,mdx}',
-    base: './src/content/pages',
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
   }),
-  schema: (ctx) =>
-    baseFrontmatter(ctx)
-      .partial({ pubDate: true })
-      .extend({
-        /** Pages don't paginate or appear in archives. */
-        showInNav: z.boolean().default(false),
-      }),
 });
 
 export const collections = { posts, pages };

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { firstParagraph } from './excerpt';
 import { slugify } from './slugify';
 
 describe('slugify', () => {
@@ -40,5 +41,34 @@ describe('slugify', () => {
 
   test('Empty string after processing returns empty', () => {
     expect(slugify('!!!')).toBe('');
+  });
+});
+
+describe('firstParagraph', () => {
+  test('skips headings and strips link syntax', () => {
+    const md = "## Intro\n\nI'm picking up AI again: [karpathy/micrograd](https://x.y)\n\nSecond.";
+    expect(firstParagraph(md)).toBe("I'm picking up AI again: karpathy/micrograd");
+  });
+
+  test('joins soft-wrapped lines and drops bold/code marks', () => {
+    expect(firstParagraph('Trained **one neuron**\nwith `Value`.\n\nMore.')).toBe(
+      'Trained one neuron with Value.',
+    );
+  });
+
+  test('skips images, code fences and display math', () => {
+    const md =
+      '![g](g.png)\n\n```cpp\nint x;\n\nint y;\n```\n\n$$\ne = ab\n$$\n\n$$e=ab$$\n\nReal text.';
+    expect(firstParagraph(md)).toBe('Real text.');
+  });
+
+  test('keeps underscores inside identifiers', () => {
+    expect(firstParagraph('See micrograd_cpp and snake_case.')).toBe(
+      'See micrograd_cpp and snake_case.',
+    );
+  });
+
+  test('empty body gives empty string', () => {
+    expect(firstParagraph('## Only a heading')).toBe('');
   });
 });

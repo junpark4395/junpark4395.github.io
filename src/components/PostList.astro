@@ -1,28 +1,65 @@
 ---
-import type { Locale } from '../config';
-import { useTranslations } from '../i18n/utils';
-import type { Post } from '../utils/posts';
-import PostCard from './PostCard.astro';
+import type { Page } from 'astro';
+import {
+  allTags,
+  excerpt,
+  formatDate,
+  getPosts,
+  postPath,
+  tagPath,
+  type Post,
+} from '../utils/posts';
+import { slugify } from '../utils/slugify';
 
 interface Props {
-  posts: Post[];
-  locale: Locale;
+  page: Page<Post>;
+  /** Slug of the tag being filtered on, if any. */
+  tag?: string;
 }
 
-const { posts, locale } = Astro.props;
-const t = useTranslations(locale);
+const { page, tag } = Astro.props;
+const tags = allTags(await getPosts());
 ---
 
 {
-  posts.length === 0 ? (
-    <p class="border-base-300 text-base-content/70 rounded-md border border-dashed px-6 py-10 text-center">
-      {t('list.empty')}
-    </p>
-  ) : (
-    <div id="post-list">
-      {posts.map((post, index) => (
-        <PostCard post={post} locale={locale} prioritizeLcp={index === 0} />
+  tags.length > 0 && (
+    <nav class="tag-filter" aria-label="Tags">
+      <a href="/" aria-current={tag ? undefined : 'page'}>
+        all
+      </a>
+      {tags.map((t) => (
+        <a href={tagPath(t)} aria-current={slugify(t) === tag ? 'page' : undefined}>
+          {t}
+        </a>
       ))}
-    </div>
+    </nav>
+  )
+}
+
+<ul class="posts">
+  {
+    page.data.map((post) => (
+      <li>
+        <time class="post-date" datetime={post.data.pubDate.toISOString()}>
+          {formatDate(post.data.pubDate)}
+        </time>
+        <a class="post-link" href={postPath(post)}>
+          {post.data.title}
+        </a>
+        <p class="excerpt">{excerpt(post)}</p>
+      </li>
+    ))
+  }
+</ul>
+
+{
+  page.lastPage > 1 && (
+    <nav class="pager" aria-label="Pages">
+      {page.url.prev ? <a href={page.url.prev}>← Newer posts</a> : <span />}
+      <span class="pager-count">
+        {page.currentPage} / {page.lastPage}
+      </span>
+      {page.url.next ? <a href={page.url.next}>Older posts →</a> : <span />}
+    </nav>
   )
 }

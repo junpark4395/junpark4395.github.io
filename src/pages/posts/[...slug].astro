@@ -1,0 +1,53 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Disqus from '../../components/Disqus.astro';
+import { DISQUS } from '../../config';
+import { excerpt, formatDate, getPosts, postSlug, type Post } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  return (await getPosts()).map((post) => ({ params: { slug: postSlug(post) }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { Content } = await render(post);
+// Dynamic import keeps the KaTeX stylesheet off posts without math.
+const MathStyles = post.data.math
+  ? (await import('../../components/MathStyles.astro')).default
+  : null;
+---
+
+<Base
+  title={post.data.title}
+  description={excerpt(post)}
+  type="article"
+  publishedTime={post.data.pubDate}
+>
+  {MathStyles && <MathStyles />}
+  <article>
+    <header class="post-header">
+      <h1>{post.data.title}</h1>
+      <p class="meta">
+        <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+        {
+          post.data.updatedDate && (
+            <>
+              {' · updated '}
+              <time datetime={post.data.updatedDate.toISOString()}>
+                {formatDate(post.data.updatedDate)}
+              </time>
+            </>
+          )
+        }
+      </p>
+    </header>
+    <div class="post-content">
+      <Content />
+    </div>
+  </article>
+  {
+    DISQUS.enabled && post.data.comments !== false && (
+      <Disqus identifier={post.data.disqusId ?? `posts/${postSlug(post)}`} />
+    )
+  }
+</Base>

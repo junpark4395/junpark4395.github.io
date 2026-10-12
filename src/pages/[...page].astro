@@ -1,0 +1,16 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { SITE } from '../config';
+import { getPosts, type Post } from '../utils/posts';
+
+export const getStaticPaths = (async ({ paginate }) =>
+  paginate(await getPosts(), { pageSize: SITE.postsPerPage })) satisfies GetStaticPaths;
+
+const { page } = Astro.props as { page: Page<Post> };
+---
+
+<Base title={page.currentPage > 1 ? `Page ${page.currentPage}` : undefined}>
+  <PostList page={page} />
+</Base>

@@ -1,7 +1,7 @@
 ---
 title: 'Rebuilding micrograd in C++, starting with one neuron'
 pubDate: 2026-10-05
-categories: [Dev]
+tags: [dev]
 math: true
 ---
 
@@ -12,7 +12,7 @@ I'm picking up AI again, starting with this repo: [karpathy/micrograd](https://g
 Back in college, I studied AI as part of a course, but I didn't put much time into it.
 Now that AI is literally changing the world, I want to understand it inside and out. This is my first real step.
 
-My C++ version is here: [sakusi4/micrograd.cpp](https://github.com/sakusi4/micrograd.cpp)
+My C++ version is here: [junpark4395/micrograd.cpp](https://github.com/junpark4395/micrograd.cpp)
 
 One thing I did differently.
 Karpathy builds the whole thing first (Value, Neuron, Layer, MLP) and then trains the MLP.
@@ -559,7 +559,7 @@ Hidden layers use relu. The last layer doesn't, so the output can be negative.
 This is where the topological sort really matters: every hidden neuron's output goes into all 4 neurons of the next layer, so almost every node has several users.
 
 The training loop is almost the same as before. The only difference is that I now have 4 examples, so I add up their squared errors into one `total_loss` and call `backward()` on that.
-I also changed the bias to start at 0. The full code is in the [repo](https://github.com/sakusi4/micrograd.cpp).
+I also changed the bias to start at 0. The full code is in the [repo](https://github.com/junpark4395/micrograd.cpp).
 
 ```text
 Epoch 0: loss = 7.5134
