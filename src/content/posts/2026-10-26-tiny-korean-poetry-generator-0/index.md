@@ -9,21 +9,19 @@ I'm going to make a tiny Korean poetry generator from scratch.
 
 Why from scratch? There are a lot of great LLMs already and they can write poems much better than mine for sure. (maybe? honestly i haven't checked :)) But I don't want to just use them, I want to know what happens inside. So I'm gonna build every part by myself. tokenizer, model, training and inference.
 
-This is the plan for now
-1. Why I build it myself, and collecting data
-2. Korean tokenizer: byte BPE vs syllable
-3. Model architecture: RoPE, RMSNorm, GQA, SwiGLU
-4. Pretraining on Wikipedia: loss curve and how the outputs change
-5. Fine-tuning on poems: the moment the model starts to write "like a poem"
-6. Inference optimization: before and after KV cache
-
-This post covers 1 and 2.
+This is the rough plan. (it can change anytime)
+- Collecting data and making a Korean tokenizer (this post)
+- Preparing the training data
+- Pretraining on Wikipedia
+- Fine-tuning on poems
+- Improving the model (RoPE, RMSNorm, GQA, SwiGLU...)
+- Inference optimization (KV cache)
 
 All the code is on [GitHub](https://github.com/junpark4395/tiny-korean-poetry-generator). (some helper functions like `BPEUtils` are only there)
 
 ## Data
 To pretrain a model, I need a lot of Korean text. I chose Korean Wikipedia. It's free, big and clean enough. I downloaded it from [Hugging Face (wikimedia/wikipedia, 20231101.ko)](https://huggingface.co/datasets/wikimedia/wikipedia/tree/main/20231101.ko) as parquet files (3 files in total).
-Poems will come later in part 5.
+Poems will come later.
 
 ## Byte BPE vs syllable
 A model can't read text. It only reads numbers. So I need a tokenizer to turn text into ids.
