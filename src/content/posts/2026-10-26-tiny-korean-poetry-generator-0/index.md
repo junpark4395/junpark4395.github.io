@@ -66,7 +66,7 @@ You can see the broken characters (�) in the middle. That's the downside I tal
 ## Training BPE
 This is my first version.
 
-```Python
+```python
 import pandas as pd
 import pickle
 from bpe_utils import BPEUtils
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 I tried this code but it's tooooo slow.
 
-```Python
+```python
 import pandas as pd
 
 df = pd.read_parquet("./dataset/train-00000-of-00003.parquet")
@@ -137,7 +137,7 @@ As you can see, it has 200k texts in the first file (I have 3 files)
 And it spends a lot of time processing the same words again and again.
 
 
-```Python
+```python
 ids_count = defaultdict(int)
 for text in df["text"][:100]:
     for token in BPEUtils.pretokenize(text):
@@ -163,7 +163,7 @@ for key, value in top_10:
 
 So this is my next version. I changed ids_list to ids_count to avoid processing duplicates. (and I only used the first 10,000 texts for now)
 
-```Python
+```python
 # Before
 ids_list = []
 for text in self.df["text"]:
@@ -200,7 +200,7 @@ The problem is the merging logic. Every step, it counts all pairs again and trie
 
 So I made an index `pair_words` that remembers which words have each pair. Now I count pairs only once at the beginning, and after each merge I only fix the counts of the words that had max_pair. (subtract the old pairs, add the new pairs)
 
-```Python
+```python
 # before the loop: count pairs once, and remember which words have each pair
 words = [list(ids) for ids in ids_count.keys()]
 counts = list(ids_count.values())
@@ -232,7 +232,7 @@ for i in pair_words.pop(max_pair):
 Finally I can see the second step in the output. I guess it will take a few hours.
 I still need to optimize it
 
-```Python
+```python
 # Before
 for text in self.df["text"][:10000]:
     for token in BPEUtils.pretokenize(text):
@@ -272,7 +272,7 @@ train: 454.98s
 It took 7 mins. hmm... I know there must be something I can improve. But I don't want to spend more time on making rules.
 Let me check inside the output file
 
-```Python
+```python
 import pickle
 
 with open("output/bpe_rules_16k.pkl", "rb") as f:
@@ -345,7 +345,7 @@ According to this result, it makes sense to me. (you know I'm Korean. trust me!)
 
 Now it's time to make a tokenizer to encode and decode
 
-```Python
+```python
 import pickle
 from bpe_utils import BPEUtils
 
@@ -402,7 +402,7 @@ Now I can encode and decode the data.
 
 Let's try a real sentence and see where it splits. (it means "The capital of South Korea is Seoul")
 
-```Python
+```python
 encoded = tokenizer.encode('대한민국의 수도는 서울이다')
 print(encoded)
 print([tokenizer.decode([i]) for i in encoded])
@@ -417,7 +417,7 @@ Interesting. Particles like `의` and `는` were not split. `대한민국의` an
 
 Before finishing today's job, let me check the compression rate.
 
-```Python
+```python
 if __name__ == "__main__":
     rules = None
     with open("output/bpe_rules_16k.pkl", "rb") as f:

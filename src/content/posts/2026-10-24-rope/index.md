@@ -15,7 +15,7 @@ Here's an example
 
 Since attention ignores position, `dogs` and `cats` have the same attention weight for `love`.
 
-```Python
+```python
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -69,7 +69,7 @@ Let's see how does RoPE handle this problem.
 The basic idea is rotation. it rotates every 2-dimension pair of q and k according to the predefined angles (for now i'm calculating angles each time)
 
 
-```Python
+```python
 import math
 import torch
 import torch.nn.functional as F
@@ -135,7 +135,7 @@ Attention weights from 'love' in 'Cats love dogs' [Cats, love, dogs]:
 In this code, each token has a 4-dimension vector(cuz d is 4). In order to rotate them we should make them 2-dimension vectors to use a rotation equation. I just paired them sequentially({0,1}, {2,3}, {4,5}, ... ) but apparently HuggingFace and llama use a different method to pair them. at this moment, I don't know how much it's important.
 
 Anyway
-```Python
+```python
 def apply_rope(vec, pos):
     out = vec.clone()
     for i in range(d // 2):
@@ -146,7 +146,7 @@ def apply_rope(vec, pos):
 ```
 each 2-dim vector will be rotated by different angles.
 I was wondering what elements angle has
-```Python
+```python
 d = 4
 theta = 10000
 seq_len = 3
@@ -229,7 +229,7 @@ The weight of `love → love` changed too (0.0742 → 0.4116) but its score is t
 
 If the rotation cancels out when the angle is the same, maybe the score only depends on the distance between tokens? So I tried this
 
-```Python
+```python
 q_love = v_love @ W_q
 k_dogs = v_dogs @ W_k
 
