@@ -106,7 +106,7 @@ def encode(self, data):
 ```
 I applied cache for each token. Cuz the merge results are always the same for each token
 
-```Bash
+```bash
 ---output---
 step: 215000, total: 215965
 step: 215100, total: 215965

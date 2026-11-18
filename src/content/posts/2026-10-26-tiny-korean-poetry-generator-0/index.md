@@ -9,13 +9,7 @@ I'm going to make a tiny Korean poetry generator from scratch.
 
 Why from scratch? There are a lot of great LLMs already and they can write poems much better than mine for sure. (maybe? honestly i haven't checked :)) But I don't want to just use them, I want to know what happens inside. So I'm gonna build every part by myself. tokenizer, model, training and inference.
 
-This is the rough plan. (it can change anytime)
-- Collecting data and making a Korean tokenizer (this post)
-- Preparing the training data
-- Pretraining on Wikipedia
-- Fine-tuning on poems
-- Improving the model (RoPE, RMSNorm, GQA, SwiGLU...)
-- Inference optimization (KV cache)
+Eventually, I want to build a separate inference engine in C++ and run this model on it, rather than spending too much time improving the model itself.
 
 All the code is on [GitHub](https://github.com/junpark4395/tiny-korean-poetry-generator). (some helper functions like `BPEUtils` are only there)
 
@@ -38,7 +32,7 @@ My target vocab size is 16,000.
 Before the code, let me show a tiny example. Let's say we only have 3 words: `한국`, `한글`, `한국어`.
 In UTF-8, every Korean character is 3 bytes. So they look like this
 
-```Bash
+```bash
 한국   → [237, 149, 156, 234, 181, 173]
 한글   → [237, 149, 156, 234, 184, 128]
 한국어 → [237, 149, 156, 234, 181, 173, 236, 150, 180]
@@ -46,7 +40,7 @@ In UTF-8, every Korean character is 3 bytes. So they look like this
 
 Now find the most frequent pair, merge it into a new id, and repeat.
 
-```Bash
+```bash
 step 0: (237, 149) appears 3 times → 256 = �     (piece of 한)
 step 1: (256, 156) appears 3 times → 257 = 한
 step 2: (257, 234) appears 3 times → 258 = 한�   (한 + piece of 국/글)
@@ -251,7 +245,7 @@ counts = list(token_count.values())
 `ids_count[tuple(token.encode('utf-8'))] += 1 ` This code was one of the problems. I only need to encode the same word once.
 Now it's acceptable. Let's see the result
 
-```Bash
+```bash
 step: 14600, total: 15743
 step: 14700, total: 15743
 step: 14800, total: 15743

@@ -53,7 +53,7 @@ print("\nAttention weights from 'love' in 'Cats love dogs' [Cats, love, dogs]:")
 print(att2.numpy().round(4))
 
 ```
-```Bash
+```bash
 ---output---
 Attention weights from 'love' in 'Dogs love cats' [Dogs, love, cats]:
 [0.1419 0.1716 0.6865]
@@ -123,7 +123,7 @@ print(rope_att1.numpy().round(4))
 print("\nAttention weights from 'love' in 'Cats love dogs' [Cats, love, dogs]:")
 print(rope_att2.numpy().round(4))
 ```
-```Bash
+```bash
 ---output---
 Attention weights from 'love' in 'Dogs love cats' [Dogs, love, cats]:
 [0.0607 0.0742 0.8652]
@@ -159,7 +159,7 @@ angles = positions[:, None] * inv_freq[None, :]
 print("Angles shape:", angles.shape)
 print("Angles values:\n", angles)
 ```
-```Bash
+```bash
 ---output---
 Angles shape: torch.Size([3, 2])
 Angles values:
@@ -215,7 +215,7 @@ Then I calculated the scores (q · k / √4)
 But `cats` is totally different. 2.4707 when it comes after `love`, -0.7073 when it comes before `love`. Same word, but different score because of the position.
 
 After softmax
-```Bash
+```bash
 Dogs love cats: exp = [0.8294, 1.0146, 11.8310], sum = 13.6751
              → [0.0607, 0.0742, 0.8652]
 
@@ -236,7 +236,7 @@ k_dogs = v_dogs @ W_k
 print(apply_rope(q_love, 1) @ apply_rope(k_dogs, 0))  # distance 1
 print(apply_rope(q_love, 5) @ apply_rope(k_dogs, 4))  # distance 1
 ```
-```Bash
+```bash
 ---output---
 tensor(-0.3740)
 tensor(-0.3740)
