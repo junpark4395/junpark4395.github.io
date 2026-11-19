@@ -1,6 +1,6 @@
 ---
 title: 'Tiny Korean poetry generator #3: pretrain and fine tuning'
-pubDate: 2026-11-03
+pubDate: 2026-11-19
 tags: [dev]
 ---
 
